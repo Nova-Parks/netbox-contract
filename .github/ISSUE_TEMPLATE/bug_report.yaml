@@ -7,29 +7,6 @@ body:
     attributes:
       value: >
         **NOTE:** This form is only for reporting _reproducible bugs_ in a current netbox-contract plugin release.
-  - type: input
-    attributes:
-      label: netbox-contract plugin version
-      description: What version of netbox-contract plugin are you currently running?
-      placeholder: v0.1.0
-    validations:
-      required: true
-  - type: input
-    attributes:
-      label: NetBox version
-      description: What version of NetBox are you currently running?
-      placeholder: v3.6.0
-    validations:
-      required: true
-  - type: dropdown
-    attributes:
-      label: Python version
-      description: What version of Python are you currently running?
-      options:
-        - "3.10"
-        - "3.11"
-    validations:
-      required: true
   - type: textarea
     attributes:
       label: Steps to Reproduce
