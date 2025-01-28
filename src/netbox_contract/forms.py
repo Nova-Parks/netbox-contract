@@ -9,7 +9,6 @@ from netbox.forms import (
     NetBoxModelForm,
     NetBoxModelImportForm,
 )
-from tenancy.models import Tenant
 from utilities.forms import BOOLEAN_WITH_BLANK_CHOICES
 from utilities.forms.fields import (
     CommentField,
@@ -31,8 +30,6 @@ from .models import (
     AccountingDimensionStatusChoices,
     Contract,
     ContractAssignment,
-    CurrencyChoices,
-    InternalEntityChoices,
     Invoice,
     InvoiceLine,
     ServiceProvider,
@@ -55,7 +52,6 @@ class ContractForm(NetBoxModelForm):
         label=_('External partie object type'),
     )
     external_partie_object = forms.ModelChoiceField(queryset=None, label=_('External partie object'))
-    tenant = DynamicModelChoiceField(queryset=Tenant.objects.all(), required=False, selector=True, label=_('Tenant'))
     parent = DynamicModelChoiceField(
         queryset=Contract.objects.all(),
         required=False,
@@ -103,15 +99,12 @@ class ContractForm(NetBoxModelForm):
             'external_partie_object_type',
             'external_partie_object',
             'external_reference',
-            'internal_partie',
-            'tenant',
             'status',
             'start_date',
             'end_date',
             'initial_term',
             'renewal_term',
             'notice_period',
-            'currency',
             'yrc',
             'mrc',
             'nrc',
@@ -137,11 +130,8 @@ class ContractForm(NetBoxModelForm):
 class ContractFilterForm(NetBoxModelFilterSetForm):
     model = Contract
 
-    tenant = DynamicModelChoiceField(queryset=Tenant.objects.all(), required=False, selector=True, label=_('Tenant'))
     external_reference = forms.CharField(required=False, label=_('External reference'))
-    internal_partie = forms.ChoiceField(choices=InternalEntityChoices, required=False, label=_('Internal partie'))
     status = forms.ChoiceField(choices=StatusChoices, required=False, label=_('Status'))
-    currency = forms.ChoiceField(choices=CurrencyChoices, required=False, label=_('Currency'))
     parent = DynamicModelChoiceField(
         queryset=Contract.objects.all(),
         required=False,
@@ -160,13 +150,6 @@ class ContractCSVForm(NetBoxModelImportForm):
     external_partie_object_id = forms.CharField(
         help_text='service provider object name', label=_('External partie name')
     )
-    tenant = CSVModelChoiceField(
-        queryset=Tenant.objects.all(),
-        to_field_name='name',
-        help_text='Tenant name',
-        required=False,
-        label=_('Tenant'),
-    )
     status = CSVChoiceField(choices=StatusChoices, help_text='Contract status', label=_('Status'))
     parent = CSVModelChoiceField(
         queryset=Contract.objects.all(),
@@ -183,14 +166,11 @@ class ContractCSVForm(NetBoxModelImportForm):
             'external_partie_object_type',
             'external_partie_object_id',
             'external_reference',
-            'internal_partie',
-            'tenant',
             'status',
             'start_date',
             'end_date',
             'initial_term',
             'renewal_term',
-            'currency',
             'yrc',
             'mrc',
             'nrc',
@@ -211,8 +191,6 @@ class ContractCSVForm(NetBoxModelImportForm):
 class ContractBulkEditForm(NetBoxModelBulkEditForm):
     name = forms.CharField(max_length=100, required=False, label=_('Name'))
     external_reference = forms.CharField(max_length=100, required=False, label=_('External reference'))
-    internal_partie = forms.ChoiceField(choices=InternalEntityChoices, required=False, label=_('Internal partie'))
-    tenant = DynamicModelChoiceField(queryset=Tenant.objects.all(), required=False, selector=True, label=_('Tenant'))
     comments = CommentField(required=False, label=_('Comments'))
     parent = DynamicModelChoiceField(
         queryset=Contract.objects.all(),
@@ -318,7 +296,6 @@ class InvoiceForm(NetBoxModelForm):
             'template',
             'period_start',
             'period_end',
-            'currency',
             'amount',
             'documents',
             'comments',
@@ -342,7 +319,6 @@ class InvoiceFilterForm(NetBoxModelFilterSetForm):
         widget=forms.Select(choices=BOOLEAN_WITH_BLANK_CHOICES),
         label=_('Template'),
     )
-    currency = forms.ChoiceField(choices=CurrencyChoices, required=False, label=_('Currency'))
     contracts = DynamicModelMultipleChoiceField(
         queryset=Contract.objects.all(),
         required=False,
@@ -369,7 +345,6 @@ class InvoiceCSVForm(NetBoxModelImportForm):
             'template',
             'period_start',
             'period_end',
-            'currency',
             'amount',
             'documents',
             'comments',
@@ -400,11 +375,6 @@ class InvoiceBulkEditForm(NetBoxModelBulkEditForm):
     period_end = forms.DateField(
         required=False,
         label=_('Period end'),
-    )
-    currency = forms.ChoiceField(
-        choices=CurrencyChoices,
-        required=False,
-        label=_('Currency'),
     )
     amount = forms.DecimalField(
         max_digits=10,
@@ -538,7 +508,6 @@ class InvoiceLineForm(NetBoxModelForm):
         model = InvoiceLine
         fields = [
             'invoice',
-            'currency',
             'amount',
             'accounting_dimensions',
             'comments',
@@ -559,11 +528,6 @@ class InvoiceLineFilterForm(NetBoxModelFilterSetForm):
         required=False,
         selector=True,
         label=_('Accounting dimensions'),
-    )
-    currency = forms.ChoiceField(
-        choices=CurrencyChoices,
-        required=False,
-        label=_('Currency'),
     )
     tag = TagFilterField(model)
 
@@ -586,7 +550,6 @@ class InvoiceLineImportForm(NetBoxModelImportForm):
         model = InvoiceLine
         fields = [
             'invoice',
-            'currency',
             'amount',
             'accounting_dimensions',
             'comments',

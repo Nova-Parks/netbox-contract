@@ -12,7 +12,7 @@ class ContractsConfig(PluginConfig):
     min_version = '4.2.0'
     required_settings = []
     default_settings = {
-        'top_level_menu': False,
+        'top_level_menu': True,
         'mandatory_contract_fields': [],
         'hidden_contract_fields': [],
         'mandatory_invoice_fields': [],

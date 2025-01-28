@@ -42,9 +42,7 @@ class ContractAssignmentListTable(NetBoxTable):
 class ContractAssignmentObjectTable(NetBoxTable):
     contract = tables.Column(linkify=True)
     actions = columns.ActionsColumn(actions=('edit', 'delete'))
-    contract__external_partie_object = tables.Column(
-        verbose_name='Partner', linkify=True
-    )
+    contract__external_partie_object = tables.Column(verbose_name='Partner', linkify=True)
     contract__status = columns.ChoiceFieldColumn(
         verbose_name=('Status'),
     )
@@ -118,14 +116,11 @@ class ContractListTable(NetBoxTable):
             'external_partie_object_type',
             'external_partie_object',
             'external_reference',
-            'internal_partie',
-            'tenant',
             'status',
             'start_date',
             'end_date',
             'initial_term',
             'renewal_term',
-            'currency',
             'mrc',
             'yrc',
             'nrc',
@@ -154,7 +149,6 @@ class ContractListBottomTable(NetBoxTable):
             'external_partie_object_type',
             'external_partie_object',
             'external_reference',
-            'internal_partie',
             'status',
             'mrc',
             'comments',
@@ -182,7 +176,6 @@ class InvoiceListTable(NetBoxTable):
             'contracts',
             'period_start',
             'period_end',
-            'currency',
             'amount',
             'documents',
             'comments',
@@ -217,7 +210,6 @@ class InvoiceLineListTable(NetBoxTable):
             'pk',
             'invoice',
             'amount',
-            'currency',
             'accounting_dimensions',
             'comments',
         )

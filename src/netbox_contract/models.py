@@ -35,30 +35,6 @@ class AccountingDimensionStatusChoices(ChoiceSet):
     ]
 
 
-class InternalEntityChoices(ChoiceSet):
-    key = 'Contract.internal_partie'
-
-    ENTITY = 'Default entity'
-
-    CHOICES = [
-        (ENTITY, 'Default entity', 'green'),
-    ]
-
-
-class CurrencyChoices(ChoiceSet):
-    key = 'Contract.currency'
-    CURRENCY_USD = 'usd'
-
-    CHOICES = [
-        (CURRENCY_USD, 'USD'),
-        ('eur', 'EUR'),
-        ('chf', 'CHF'),
-    ]
-
-
-CURRENCY_DEFAULT = CurrencyChoices.CHOICES[0][0]
-
-
 class AccountingDimension(NetBoxModel):
     name = models.CharField(
         max_length=20,
@@ -153,15 +129,6 @@ class Contract(NetBoxModel):
     )
     external_partie_object.editable = True
     external_reference = models.CharField(max_length=100, blank=True, null=True, verbose_name=_('external reference'))
-    internal_partie = models.CharField(max_length=50, choices=InternalEntityChoices, verbose_name=_('internal partie'))
-    tenant = models.ForeignKey(
-        to='tenancy.Tenant',
-        on_delete=models.PROTECT,
-        related_name='contracts',
-        blank=True,
-        null=True,
-        verbose_name=_('tenant'),
-    )
     status = models.CharField(
         max_length=50,
         choices=StatusChoices,
@@ -189,12 +156,6 @@ class Contract(NetBoxModel):
         default=90,
         verbose_name=_('notice period'),
     )
-    currency = models.CharField(
-        max_length=3,
-        choices=CurrencyChoices,
-        default=CURRENCY_DEFAULT,
-        verbose_name=_('currency'),
-    )
     yrc = models.DecimalField(
         verbose_name=_('yearly recuring cost'),
         max_digits=10,
@@ -211,7 +172,7 @@ class Contract(NetBoxModel):
         null=True,
         help_text=_('Use either this field of the yearly recuring cost field'),
     )
-    nrc = models.DecimalField(verbose_name=_('none recuring cost'), default=0, max_digits=10, decimal_places=2)
+    nrc = models.DecimalField(verbose_name=_('non-recuring cost'), default=0, max_digits=10, decimal_places=2)
     invoice_frequency = models.IntegerField(
         help_text=_('The frequency of invoices in month'),
         default=1,
@@ -267,12 +228,6 @@ class Invoice(NetBoxModel):
     contracts = models.ManyToManyField(Contract, related_name='invoices', blank=True, verbose_name=_('contracts'))
     period_start = models.DateField(blank=True, null=True, verbose_name=_('period start'))
     period_end = models.DateField(blank=True, null=True, verbose_name=_('period end'))
-    currency = models.CharField(
-        max_length=3,
-        choices=CurrencyChoices,
-        default=CURRENCY_DEFAULT,
-        verbose_name=_('currency'),
-    )
     amount = models.DecimalField(max_digits=10, decimal_places=2, verbose_name=_('amount'))
     documents = models.URLField(
         blank=True,
@@ -306,12 +261,6 @@ class InvoiceLine(NetBoxModel):
         on_delete=models.CASCADE,
         related_name='invoicelines',
         verbose_name=_('invoice'),
-    )
-    currency = models.CharField(
-        max_length=3,
-        choices=CurrencyChoices,
-        default=CURRENCY_DEFAULT,
-        verbose_name=_('currency'),
     )
     amount = models.DecimalField(max_digits=10, decimal_places=2, verbose_name=_('amount'))
     accounting_dimensions = models.ManyToManyField(

@@ -34,16 +34,6 @@
               <th scope="row">{% trans "External reference" %}</th>
               <td>{{ object.external_reference }}</td>
             </tr>
-            <tr>
-              <th scope="row">{% trans "Internal partie" %}</th>
-              <td>{{ object.internal_partie }}</td>
-            </tr>
-            {% if not 'tenant' in hidden_fields %}
-            <tr>
-              <th scope="row">{% trans "Tenant" %}</th>
-              <td>{{ object.tenant }}</td>
-            </tr>
-            {% endif %}
             {% if not 'start_date' in hidden_fields %}
             <tr>
               <th scope="row">{% trans "Start date" %}</th>
@@ -74,10 +64,6 @@
               <td>{{ object.notice_period }} {% trans "days" %}</td>
             </tr>
             {% endif %}
-            <tr>
-              <th scope="row">{% trans "Currency" %}</th>
-              <td>{{ object.get_currency_display  }}</td>
-            </tr>
             <tr>
               <th scope="row">{% trans "Monthly recuring costs" %}</th>
               <td>{{ object.mrc }}</td>
