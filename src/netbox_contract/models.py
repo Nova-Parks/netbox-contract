@@ -38,10 +38,10 @@ class AccountingDimensionStatusChoices(ChoiceSet):
 class AccountingDimension(NetBoxModel):
     name = models.CharField(
         max_length=20,
-        verbose_name=_('Name of Accounting Code'),
+        verbose_name=_('name'),
     )
-    value = models.CharField(max_length=20, verbose_name=_('value'))
-    site = models.OneToOneField(to='dcim.Site', verbose_name='site', null=True, on_delete=models.PROTECT)
+    value = models.CharField(max_length=20, verbose_name=_('code'))
+    site = models.OneToOneField(to='dcim.Site', verbose_name=_('site'), null=True, on_delete=models.PROTECT)
     status = models.CharField(
         max_length=50,
         choices=AccountingDimensionStatusChoices,
