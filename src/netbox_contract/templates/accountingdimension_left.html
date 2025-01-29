@@ -1,0 +1,10 @@
+{% load render_table from django_tables2 %}
+{% load i18n %}
+<div class="row">
+    <div class="col col-md-12">
+        <div class="card">
+            <h5 class="card-header">{% trans "Accounting Info" %}</h5>
+            {% render_table related_accounting_table %}
+        </div>
+    </div>
+</div>

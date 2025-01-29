@@ -100,7 +100,7 @@ class AccountingDimensionFilterSet(NetBoxModelFilterSet):
 
     class Meta:
         model = AccountingDimension
-        fields = ('name', 'value')
+        fields = ('name', 'value', 'site')
 
     def search(self, queryset, name, value):
         return queryset.filter(Q(comments__icontains=value) | Q(name__icontains=value))

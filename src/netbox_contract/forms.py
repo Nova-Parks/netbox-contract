@@ -1,3 +1,4 @@
+from dcim.models import Site
 from django import forms
 from django.conf import settings
 from django.contrib.contenttypes.models import ContentType
@@ -578,6 +579,7 @@ class AccountingDimensionForm(NetBoxModelForm):
             'name',
             'value',
             'status',
+            'site',
             'comments',
             'tags',
         ]
@@ -587,6 +589,7 @@ class AccountingDimensionFilterForm(NetBoxModelFilterSetForm):
     model = AccountingDimension
 
     name = forms.CharField(required=False, label=_('Name'))
+    site = forms.ModelChoiceField(queryset=Site.objects.all(), required=False, label=('Site'))
     value = forms.CharField(required=False, label=_('Value'))
     status = forms.ChoiceField(
         choices=AccountingDimensionStatusChoices,
@@ -603,6 +606,7 @@ class AccountingDimensionImportForm(NetBoxModelImportForm):
         fields = [
             'name',
             'value',
+            'site',
             'status',
             'comments',
             'tags',
@@ -611,5 +615,6 @@ class AccountingDimensionImportForm(NetBoxModelImportForm):
 
 class AccountingDimensionBulkEditForm(NetBoxModelBulkEditForm):
     name = forms.CharField(max_length=20, required=False, label=_('Name'))
+    site = forms.ModelChoiceField(queryset=Site.objects.all(), required=False, label=_('Site'))
     value = forms.CharField(max_length=20, required=False, label=_('Value'))
     model = AccountingDimension

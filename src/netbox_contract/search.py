@@ -37,10 +37,7 @@ class InvoiceLineIndex(SearchIndex):
 
 class AccountingDimensionIndex(SearchIndex):
     model = AccountingDimension
-    fields = (
-        ('name', 20),
-        ('value', 20),
-    )
+    fields = (('name', 20), ('value', 20), ('site', 20))
 
 
 indexes = [

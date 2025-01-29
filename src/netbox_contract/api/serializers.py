@@ -336,10 +336,11 @@ class AccountingDimensionSerializer(NetBoxModelSerializer):
             'display',
             'name',
             'value',
+            'site',
             'comments',
             'tags',
             'custom_fields',
             'created',
             'last_updated',
         )
-        brief_fields = ('id', 'name', 'value', 'url', 'display')
+        brief_fields = ('id', 'name', 'value', 'site', 'url', 'display')

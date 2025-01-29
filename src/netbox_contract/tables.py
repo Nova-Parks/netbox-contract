@@ -234,12 +234,14 @@ class AccountingDimensionListTable(NetBoxTable):
             'pk',
             'name',
             'value',
+            'site',
             'comments',
             'status',
         )
         default_columns = (
             'name',
             'value',
+            'site',
             'comments',
             'status',
         )
