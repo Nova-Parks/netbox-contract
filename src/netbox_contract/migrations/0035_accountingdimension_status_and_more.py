@@ -17,8 +17,6 @@ class Migration(migrations.Migration):
         ),
         migrations.AddConstraint(
             model_name='accountingdimension',
-            constraint=models.UniqueConstraint(
-                fields=('name', 'value'), name='unique_accounting_dimension'
-            ),
+            constraint=models.UniqueConstraint(fields=('name', 'value'), name='unique_accounting_dimension'),
         ),
     ]

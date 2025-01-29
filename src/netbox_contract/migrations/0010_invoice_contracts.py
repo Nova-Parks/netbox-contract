@@ -12,8 +12,6 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='invoice',
             name='contracts',
-            field=models.ManyToManyField(
-                blank=True, related_name='invoices', to='netbox_contract.contract'
-            ),
+            field=models.ManyToManyField(blank=True, related_name='invoices', to='netbox_contract.contract'),
         ),
     ]
