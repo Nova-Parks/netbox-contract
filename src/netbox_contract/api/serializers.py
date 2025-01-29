@@ -4,7 +4,6 @@ from drf_yasg.utils import swagger_serializer_method
 from netbox.api.fields import ContentTypeField, SerializedPKRelatedField
 from netbox.api.serializers import NetBoxModelSerializer, WritableNestedSerializer
 from rest_framework import serializers
-from tenancy.api.serializers_.tenants import TenantSerializer
 from utilities.api import get_serializer_for_model
 
 from ..models import (
@@ -20,7 +19,6 @@ from ..models import (
 class NestedContractSerializer(WritableNestedSerializer):
     url = serializers.HyperlinkedIdentityField(view_name='plugins-api:netbox_contract-api:contract-detail')
     yrc = serializers.DecimalField(max_digits=10, decimal_places=2, read_only=True)
-    tenant = TenantSerializer(nested=True, required=False, allow_null=True)
     external_partie_object_type = ContentTypeField(queryset=ContentType.objects.all())
     external_partie_object = serializers.SerializerMethodField(read_only=True)
 
