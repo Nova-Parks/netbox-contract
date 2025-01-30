@@ -46,6 +46,10 @@ plugin_settings = settings.PLUGINS_CONFIG['netbox_contract']
 class ContractForm(NetBoxModelForm):
     comments = CommentField(label=_('Comments'))
 
+    accounting_code = forms.ModelChoiceField(
+        queryset=AccountingDimension.objects.all(),
+        label=_('Accounting Code'),
+    )
     external_partie_object_type = ContentTypeChoiceField(
         queryset=ContentType.objects.all(),
         limit_choices_to=SERVICE_PROVIDER_MODELS,
@@ -97,6 +101,7 @@ class ContractForm(NetBoxModelForm):
         model = Contract
         fields = (
             'name',
+            'accounting_code',
             'external_partie_object_type',
             'external_partie_object',
             'external_reference',
@@ -133,6 +138,10 @@ class ContractForm(NetBoxModelForm):
 class ContractFilterForm(NetBoxModelFilterSetForm):
     model = Contract
 
+    accounting_code = forms.ModelChoiceField(
+        queryset=AccountingDimension.objects.all(),
+        label=_('Accounting Code'),
+    )
     external_reference = forms.CharField(required=False, label=_('External reference'))
     status = forms.ChoiceField(choices=StatusChoices, required=False, label=_('Status'))
     parent = DynamicModelChoiceField(
@@ -145,6 +154,10 @@ class ContractFilterForm(NetBoxModelFilterSetForm):
 
 
 class ContractCSVForm(NetBoxModelImportForm):
+    accounting_code = forms.ModelChoiceField(
+        queryset=AccountingDimension.objects.all(),
+        label=_('Accounting Code'),
+    )
     external_partie_object_type = CSVContentTypeField(
         queryset=ContentType.objects.all(),
         limit_choices_to=SERVICE_PROVIDER_MODELS,
@@ -166,6 +179,7 @@ class ContractCSVForm(NetBoxModelImportForm):
         model = Contract
         fields = [
             'name',
+            'accounting_code',
             'external_partie_object_type',
             'external_partie_object_id',
             'external_reference',
@@ -193,6 +207,10 @@ class ContractCSVForm(NetBoxModelImportForm):
 
 class ContractBulkEditForm(NetBoxModelBulkEditForm):
     name = forms.CharField(max_length=100, required=False, label=_('Name'))
+    accounting_code = forms.ModelChoiceField(
+        queryset=AccountingDimension.objects.all(),
+        label=_('Accounting Code'),
+    )
     external_reference = forms.CharField(max_length=100, required=False, label=_('External reference'))
     comments = CommentField(required=False, label=_('Comments'))
     parent = DynamicModelChoiceField(

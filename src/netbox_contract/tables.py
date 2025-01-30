@@ -100,6 +100,7 @@ class ContractAssignmentContractTable(NetBoxTable):
 
 class ContractListTable(NetBoxTable):
     name = tables.Column(linkify=True)
+    accounting_code = tables.Column(verbose_name='Accounting Code', linkify=True)
     external_partie_object = tables.Column(verbose_name='External partie', linkify=True)
     parent = tables.Column(linkify=True)
     yrc = tables.Column(verbose_name='Yerly recuring costs')
@@ -113,7 +114,7 @@ class ContractListTable(NetBoxTable):
             'pk',
             'id',
             'name',
-            'external_partie_object_type',
+            'accounting_code' 'external_partie_object_type',
             'external_partie_object',
             'external_reference',
             'status',
@@ -130,11 +131,12 @@ class ContractListTable(NetBoxTable):
             'parent',
             'actions',
         )
-        default_columns = ('name', 'status', 'parent')
+        default_columns = ('name', 'accounting_code', 'status', 'parent')
 
 
 class ContractListBottomTable(NetBoxTable):
     name = tables.Column(linkify=True)
+    accounting_code = tables.Column(verbose_name='Accounting Code', linkify=True)
     external_partie_object = tables.Column(linkify=True)
     status = columns.ChoiceFieldColumn(
         verbose_name=('Status'),
@@ -146,6 +148,7 @@ class ContractListBottomTable(NetBoxTable):
             'pk',
             'id',
             'name',
+            'accounting_code',
             'external_partie_object_type',
             'external_partie_object',
             'external_reference',
@@ -156,6 +159,7 @@ class ContractListBottomTable(NetBoxTable):
         )
         default_columns = (
             'name',
+            'accounting_code',
             'external_partie_object_type',
             'external_partie_object',
             'status',

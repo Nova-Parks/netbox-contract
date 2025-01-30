@@ -114,6 +114,13 @@ class ContractAssignment(NetBoxModel):
 
 class Contract(NetBoxModel):
     name = models.CharField(max_length=100, verbose_name=_('name'))
+    accounting_code = models.ForeignKey(
+        to=AccountingDimension,
+        on_delete=models.PROTECT,
+        blank=True,
+        null=True,
+        verbose_name=_('Accounting Code'),
+    )
     external_partie_object_type = models.ForeignKey(
         to=ContentType,
         on_delete=models.CASCADE,

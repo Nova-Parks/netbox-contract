@@ -28,6 +28,7 @@ class ContractFilterSet(NetBoxModelFilterSet):
         fields = (
             'id',
             'name',
+            'accounting_code',
             'external_reference',
             'start_date',
             'end_date',

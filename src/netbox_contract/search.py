@@ -15,6 +15,7 @@ class ContractIndex(SearchIndex):
     model = Contract
     fields = (
         ('name', 100),
+        ('accounting_code', 100),
         ('comments', 5000),
     )
 
