@@ -126,6 +126,8 @@ class ContractForm(NetBoxModelForm):
 
         if self.cleaned_data['mrc'] and self.cleaned_data['yrc']:
             raise ValidationError('you should set monthly OR yearly recuring costs not both')
+        elif not self.cleaned_data['mrc'] and not self.cleaned_data['yrc']:
+            raise ValidationError('You must set one of monthly OR yearly recurring costs')
 
 
 class ContractFilterForm(NetBoxModelFilterSetForm):
