@@ -98,6 +98,7 @@ class ContractSerializer(NetBoxModelSerializer):
             'yrc',
             'nrc',
             'invoice_frequency',
+            'term_con',
             'comments',
             'parent',
             'tags',
@@ -123,6 +124,7 @@ class ContractSerializer(NetBoxModelSerializer):
             'yrc',
             'nrc',
             'invoice_frequency',
+            'term_con',
             'comments',
             'parent',
         )

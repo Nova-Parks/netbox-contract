@@ -115,6 +115,7 @@ class ContractForm(NetBoxModelForm):
             'mrc',
             'nrc',
             'invoice_frequency',
+            'term_con',
             'parent',
             'documents',
             'comments',

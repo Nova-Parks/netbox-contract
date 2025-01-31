@@ -92,6 +92,10 @@
               <th scope="row">{% trans "Invoice frequency" %}</th>
               <td>{{ object.invoice_frequency }}</td>
             </tr>
+            <tr>
+              <th scope="row">{% trans "Terms & Conditions" %}</th>
+              <td>{{ object.term_con|markdown }}</td>
+            </tr>
             {% if not 'parent' in hidden_fields %}
             <tr>
               <th scope="row">{% trans "Parent" %}</th>

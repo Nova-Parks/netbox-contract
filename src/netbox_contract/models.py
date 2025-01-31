@@ -4,6 +4,7 @@ from django.contrib.contenttypes.fields import GenericForeignKey
 from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import ValidationError
 from django.db import models
+from django.templatetags.static import static
 from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
 from netbox.models import NetBoxModel
@@ -184,6 +185,15 @@ class Contract(NetBoxModel):
         help_text=_('The frequency of invoices in month'),
         default=1,
         verbose_name=_('invoice frequency'),
+    )
+    term_con = models.TextField(
+        blank=True,
+        null=True,
+        verbose_name=_('terms and Conditions'),
+        help_text=_(
+            '<i class="mdi mdi-information-outline"></i> '
+            '<a href="{url}" target="_blank" tabindex="-1">Markdown</a> syntax is supported'
+        ).format(url=static('docs/reference/markdown/')),
     )
     documents = models.URLField(
         blank=True,
