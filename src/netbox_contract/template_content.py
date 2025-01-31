@@ -5,7 +5,7 @@ from netbox.plugins import PluginTemplateExtension
 from virtualization.models import VirtualMachine
 
 from . import tables
-from .models import AccountingDimension, ContractAssignment
+from .models import AccountingDimension, Contract, ContractAssignment
 
 
 class CircuitContractAssignments(PluginTemplateExtension):
@@ -96,10 +96,27 @@ class SiteAccountingCode(PluginTemplateExtension):
         )
 
 
+class ProvidersContractList(PluginTemplateExtension):
+    models = ['circuits.provider']
+
+    def full_width_page(self):
+        provider = self.context['object']
+        contracts = Contract.objects.filter(provider=provider)
+        contract_table = tables.ContractListTable(contracts)
+
+        return self.render(
+            'contract_list_bottom.html',
+            extra_context={
+                'contracts_table': contract_table,
+            },
+        )
+
+
 template_extensions = [
     CircuitContractAssignments,
     DeviceContractAssignments,
     VMContractAssignments,
     SiteContractAssignments,
     SiteAccountingCode,
+    ProvidersContractList,
 ]
