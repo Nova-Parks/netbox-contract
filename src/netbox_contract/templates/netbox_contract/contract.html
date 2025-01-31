@@ -25,13 +25,11 @@
               </td>
             </tr>
             <tr>
-              <th scope="row">{% trans "External partie type" %}</th>
-              <td>{{ object.external_partie_object_type }}</td>
-            </tr>
-            <tr>
-              <th scope="row">{% trans "External partie" %}</th>
+              <th scope="row">{% trans "Provider" %}</th>
               <td>
-                <a href="{{ object.external_partie_object.get_absolute_url }}">{{ object.external_partie_object.name }}</a>
+                <a href="{{ object.provider.get_absolute_url }}">
+                  {{ object.provider }}
+                </a>
               </td>
             </tr>
             <tr>

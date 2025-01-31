@@ -7,7 +7,6 @@ from .models import (
     ContractAssignment,
     Invoice,
     InvoiceLine,
-    ServiceProvider,
 )
 
 
@@ -16,7 +15,8 @@ class ContractAssignmentListTable(NetBoxTable):
     content_object = tables.Column(linkify=True, orderable=False)
     contract = tables.Column(linkify=True)
     actions = columns.ActionsColumn(actions=('edit', 'delete'))
-    contract__external_partie_object = tables.Column(linkify=True)
+    contract__provider = tables.Column(linkify=True)
+    contract__accounting_code = tables.Column(linkify=True)
 
     class Meta(NetBoxTable.Meta):
         model = ContractAssignment
@@ -25,8 +25,8 @@ class ContractAssignmentListTable(NetBoxTable):
             'content_type',
             'content_object',
             'contract',
-            'contract__external_partie_object_type',
-            'contract__external_partie_object',
+            'contract__provider',
+            'contract__accounting_code',
             'actions',
         )
         default_columns = (
@@ -34,15 +34,16 @@ class ContractAssignmentListTable(NetBoxTable):
             'content_type',
             'content_object',
             'contract',
-            'contract__external_partie_object_type',
-            'contract__external_partie_object',
+            'contract__provider',
+            'contract__accounting_code',
         )
 
 
 class ContractAssignmentObjectTable(NetBoxTable):
     contract = tables.Column(linkify=True)
     actions = columns.ActionsColumn(actions=('edit', 'delete'))
-    contract__external_partie_object = tables.Column(verbose_name='Partner', linkify=True)
+    contract__provider = tables.Column(verbose_name='Partner', linkify=True)
+    contract__accounting_code = tables.Column(verbose_name=('Accounting Code'), linkify=True)
     contract__status = columns.ChoiceFieldColumn(
         verbose_name=('Status'),
     )
@@ -52,7 +53,8 @@ class ContractAssignmentObjectTable(NetBoxTable):
         fields = (
             'pk',
             'contract',
-            'contract__external_partie_object',
+            'contract__provider',
+            'contract__accounting_code',
             'contract__status',
             'contract__start_date',
             'contract__end_date',
@@ -63,8 +65,8 @@ class ContractAssignmentObjectTable(NetBoxTable):
         default_columns = (
             'pk',
             'contract',
-            'contract__external_partie_object_type',
-            'contract__external_partie_object',
+            'contract__provider',
+            'contract__accounting_code',
             'contract__status',
             'contract__start_date',
             'contract__end_date',
@@ -101,7 +103,7 @@ class ContractAssignmentContractTable(NetBoxTable):
 class ContractListTable(NetBoxTable):
     name = tables.Column(linkify=True)
     accounting_code = tables.Column(verbose_name='Accounting Code', linkify=True)
-    external_partie_object = tables.Column(verbose_name='External partie', linkify=True)
+    provider = tables.Column(verbose_name='Provider', linkify=True)
     parent = tables.Column(linkify=True)
     yrc = tables.Column(verbose_name='Yerly recuring costs')
     status = columns.ChoiceFieldColumn(
@@ -115,8 +117,7 @@ class ContractListTable(NetBoxTable):
             'id',
             'name',
             'accounting_code',
-            'external_partie_object_type',
-            'external_partie_object',
+            'provider',
             'external_reference',
             'status',
             'start_date',
@@ -132,13 +133,13 @@ class ContractListTable(NetBoxTable):
             'parent',
             'actions',
         )
-        default_columns = ('name', 'accounting_code', 'status', 'parent')
+        default_columns = ('name', 'provider', 'accounting_code', 'status', 'parent')
 
 
 class ContractListBottomTable(NetBoxTable):
     name = tables.Column(linkify=True)
     accounting_code = tables.Column(verbose_name='Accounting Code', linkify=True)
-    external_partie_object = tables.Column(linkify=True)
+    provider = tables.Column(linkify=True)
     status = columns.ChoiceFieldColumn(
         verbose_name=('Status'),
     )
@@ -150,8 +151,7 @@ class ContractListBottomTable(NetBoxTable):
             'id',
             'name',
             'accounting_code',
-            'external_partie_object_type',
-            'external_partie_object',
+            'provider',
             'external_reference',
             'status',
             'mrc',
@@ -161,8 +161,7 @@ class ContractListBottomTable(NetBoxTable):
         default_columns = (
             'name',
             'accounting_code',
-            'external_partie_object_type',
-            'external_partie_object',
+            'provider',
             'status',
         )
 
@@ -194,15 +193,6 @@ class InvoiceListTable(NetBoxTable):
             'period_end',
             'amount',
         )
-
-
-class ServiceProviderListTable(NetBoxTable):
-    name = tables.Column(linkify=True)
-
-    class Meta(NetBoxTable.Meta):
-        model = ServiceProvider
-        fields = ('pk', 'name', 'slug', 'portal_url')
-        default_columns = ('name', 'portal_url')
 
 
 class InvoiceLineListTable(NetBoxTable):

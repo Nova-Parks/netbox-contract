@@ -1,3 +1,4 @@
+from circuits.models import Provider
 from dcim.models import Site
 from django import forms
 from django.conf import settings
@@ -13,19 +14,16 @@ from netbox.forms import (
 from utilities.forms import BOOLEAN_WITH_BLANK_CHOICES
 from utilities.forms.fields import (
     CommentField,
-    ContentTypeChoiceField,
     CSVChoiceField,
     CSVContentTypeField,
     CSVModelChoiceField,
     CSVModelMultipleChoiceField,
     DynamicModelChoiceField,
     DynamicModelMultipleChoiceField,
-    SlugField,
     TagFilterField,
 )
-from utilities.forms.widgets import DatePicker, HTMXSelect
+from utilities.forms.widgets import DatePicker
 
-from .constants import SERVICE_PROVIDER_MODELS
 from .models import (
     AccountingDimension,
     AccountingDimensionStatusChoices,
@@ -33,7 +31,6 @@ from .models import (
     ContractAssignment,
     Invoice,
     InvoiceLine,
-    ServiceProvider,
     StatusChoices,
 )
 
@@ -50,13 +47,10 @@ class ContractForm(NetBoxModelForm):
         queryset=AccountingDimension.objects.all(),
         label=_('Accounting Code'),
     )
-    external_partie_object_type = ContentTypeChoiceField(
-        queryset=ContentType.objects.all(),
-        limit_choices_to=SERVICE_PROVIDER_MODELS,
-        widget=HTMXSelect(),
-        label=_('External partie object type'),
+    provider = forms.ModelChoiceField(
+        queryset=Provider.objects.all(),
+        label=_('Provider Selection'),
     )
-    external_partie_object = forms.ModelChoiceField(queryset=None, label=_('External partie object'))
     parent = DynamicModelChoiceField(
         queryset=Contract.objects.all(),
         required=False,
@@ -65,28 +59,7 @@ class ContractForm(NetBoxModelForm):
     )
 
     def __init__(self, *args, **kwargs):
-        initial = kwargs.get('initial', None)
         super().__init__(*args, **kwargs)
-
-        # Initialize the external party object gfk
-        if initial and 'external_partie_object_type' in initial:
-            external_partie_object_type = ContentType.objects.get_for_id(initial['external_partie_object_type'])
-            external_partie_class = external_partie_object_type.model_class()
-            self.fields['external_partie_object'].queryset = external_partie_class.objects.all()
-            if (
-                self.instance.external_partie_object_type
-                and self.instance.external_partie_object_type.id == external_partie_object_type.id
-            ):
-                self.fields['external_partie_object'].initial = self.instance.external_partie_object
-            else:
-                self.fields['external_partie_object'].initial = None
-        elif self.instance.external_partie_object_type:
-            external_partie_class = self.instance.external_partie_object_type.model_class()
-            self.fields['external_partie_object'].queryset = external_partie_class.objects.all()
-            self.fields['external_partie_object'].initial = self.instance.external_partie_object
-        else:
-            self.fields['external_partie_object'].queryset = ServiceProvider.objects.all()
-            self.fields['external_partie_object'].initial = None
 
         # Initialise fields settings
         mandatory_fields = plugin_settings.get('mandatory_contract_fields')
@@ -102,8 +75,7 @@ class ContractForm(NetBoxModelForm):
         fields = (
             'name',
             'accounting_code',
-            'external_partie_object_type',
-            'external_partie_object',
+            'provider',
             'external_reference',
             'status',
             'start_date',
@@ -159,13 +131,9 @@ class ContractCSVForm(NetBoxModelImportForm):
         queryset=AccountingDimension.objects.all(),
         label=_('Accounting Code'),
     )
-    external_partie_object_type = CSVContentTypeField(
-        queryset=ContentType.objects.all(),
-        limit_choices_to=SERVICE_PROVIDER_MODELS,
-        help_text='service provider object type in the form <app>.<model>',
-    )
-    external_partie_object_id = forms.CharField(
-        help_text='service provider object name', label=_('External partie name')
+    provider = forms.ModelChoiceField(
+        queryset=Provider.objects.all(),
+        label=_('Provider Selection'),
     )
     status = CSVChoiceField(choices=StatusChoices, help_text='Contract status', label=_('Status'))
     parent = CSVModelChoiceField(
@@ -181,8 +149,7 @@ class ContractCSVForm(NetBoxModelImportForm):
         fields = [
             'name',
             'accounting_code',
-            'external_partie_object_type',
-            'external_partie_object_id',
+            'provider',
             'external_reference',
             'status',
             'start_date',
@@ -198,19 +165,16 @@ class ContractCSVForm(NetBoxModelImportForm):
             'parent',
         ]
 
-    def clean_external_partie_object_id(self):
-        name = self.cleaned_data.get('external_partie_object_id')
-        external_partie_object_type = self.cleaned_data.get('external_partie_object_type')
-        external_partie_object = external_partie_object_type.get_object_for_this_type(name=name)
-
-        return external_partie_object.id
-
 
 class ContractBulkEditForm(NetBoxModelBulkEditForm):
     name = forms.CharField(max_length=100, required=False, label=_('Name'))
     accounting_code = forms.ModelChoiceField(
         queryset=AccountingDimension.objects.all(),
         label=_('Accounting Code'),
+    )
+    provider = forms.ModelChoiceField(
+        queryset=Provider.objects.all(),
+        label=_('Provider Selection'),
     )
     external_reference = forms.CharField(max_length=100, required=False, label=_('External reference'))
     comments = CommentField(required=False, label=_('Comments'))
@@ -415,40 +379,6 @@ class InvoiceBulkEditForm(NetBoxModelBulkEditForm):
     nullable_fields = ('comments',)
 
     model = Invoice
-
-
-# service Provider forms
-
-
-class ServiceProviderForm(NetBoxModelForm):
-    slug = SlugField(label=_('Slug'))
-    comments = CommentField(label=_('Comments'))
-
-    class Meta:
-        model = ServiceProvider
-        fields = ('name', 'slug', 'portal_url', 'comments', 'tags')
-
-
-class ServiceProviderFilterForm(NetBoxModelFilterSetForm):
-    model = ServiceProvider
-    name = forms.CharField(required=False, label=_('Name'))
-    tag = TagFilterField(model)
-
-
-class ServiceProviderCSVForm(NetBoxModelImportForm):
-    slug = SlugField(label=_('Slug'))
-    comments = CommentField(label=_('Comments'))
-
-    class Meta:
-        model = ServiceProvider
-        fields = ['name', 'slug', 'portal_url', 'comments', 'tags']
-
-
-class ServiceProviderBulkEditForm(NetBoxModelBulkEditForm):
-    name = forms.CharField(max_length=100, required=True, label=_('Name'))
-    comments = CommentField(label=_('Comments'))
-    nullable_fields = ('comments',)
-    model = ServiceProvider
 
 
 # ContractAssignment

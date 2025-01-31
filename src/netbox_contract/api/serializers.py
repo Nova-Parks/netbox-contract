@@ -12,15 +12,12 @@ from ..models import (
     ContractAssignment,
     Invoice,
     InvoiceLine,
-    ServiceProvider,
 )
 
 
 class NestedContractSerializer(WritableNestedSerializer):
     url = serializers.HyperlinkedIdentityField(view_name='plugins-api:netbox_contract-api:contract-detail')
     yrc = serializers.DecimalField(max_digits=10, decimal_places=2, read_only=True)
-    external_partie_object_type = ContentTypeField(queryset=ContentType.objects.all())
-    external_partie_object = serializers.SerializerMethodField(read_only=True)
 
     class Meta:
         model = Contract
@@ -29,9 +26,8 @@ class NestedContractSerializer(WritableNestedSerializer):
             'url',
             'display',
             'name',
-            'external_partie_object_type',
-            'external_partie_object_id',
-            'external_partie_object',
+            'accounting_code',
+            'provider',
             'external_reference',
             'status',
             'start_date',
@@ -44,12 +40,6 @@ class NestedContractSerializer(WritableNestedSerializer):
             'invoice_frequency',
             'comments',
         )
-
-    @swagger_serializer_method(serializer_or_field=serializers.JSONField)
-    def get_external_partie_object(self, instance):
-        serializer = get_serializer_for_model(instance.external_partie_object_type.model_class())
-        context = {'request': self.context['request']}
-        return serializer(instance.external_partie_object, nested=True, context=context).data
 
 
 class NestedInvoiceSerializer(WritableNestedSerializer):
@@ -74,8 +64,6 @@ class ContractSerializer(NetBoxModelSerializer):
     url = serializers.HyperlinkedIdentityField(view_name='plugins-api:netbox_contract-api:contract-detail')
     yrc = serializers.DecimalField(max_digits=10, decimal_places=2, read_only=True)
     parent = NestedContractSerializer(many=False, required=False)
-    external_partie_object_type = ContentTypeField(queryset=ContentType.objects.all())
-    external_partie_object = serializers.SerializerMethodField(read_only=True)
 
     class Meta:
         model = Contract
@@ -85,9 +73,7 @@ class ContractSerializer(NetBoxModelSerializer):
             'display',
             'name',
             'accounting_code',
-            'external_partie_object_type',
-            'external_partie_object_id',
-            'external_partie_object',
+            'provider',
             'external_reference',
             'status',
             'start_date',
@@ -111,9 +97,8 @@ class ContractSerializer(NetBoxModelSerializer):
             'url',
             'display',
             'name',
-            'accounting_code' 'external_partie_object_type',
-            'external_partie_object_id',
-            'external_partie_object',
+            'accounting_code',
+            'provider',
             'external_reference',
             'status',
             'start_date',
@@ -128,12 +113,6 @@ class ContractSerializer(NetBoxModelSerializer):
             'comments',
             'parent',
         )
-
-    @swagger_serializer_method(serializer_or_field=serializers.JSONField)
-    def get_external_partie_object(self, instance):
-        serializer = get_serializer_for_model(instance.external_partie_object_type.model_class())
-        context = {'request': self.context['request']}
-        return serializer(instance.external_partie_object, nested=True, context=context).data
 
 
 class InvoiceSerializer(NetBoxModelSerializer):
@@ -232,25 +211,6 @@ class InvoiceSerializer(NetBoxModelSerializer):
                         first = False
 
         return instance
-
-
-class ServiceProviderSerializer(NetBoxModelSerializer):
-    url = serializers.HyperlinkedIdentityField(view_name='plugins-api:netbox_contract-api:serviceprovider-detail')
-
-    class Meta:
-        model = ServiceProvider
-        fields = (
-            'id',
-            'url',
-            'display',
-            'name',
-            'portal_url',
-            'tags',
-            'custom_fields',
-            'created',
-            'last_updated',
-        )
-        brief_fields = ('id', 'url', 'display', 'name')
 
 
 class ContractAssignmentSerializer(NetBoxModelSerializer):

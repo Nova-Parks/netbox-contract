@@ -9,19 +9,12 @@ from .models import (
     ContractAssignment,
     Invoice,
     InvoiceLine,
-    ServiceProvider,
     StatusChoices,
 )
 
 
 class ContractFilterSet(NetBoxModelFilterSet):
     status = django_filters.MultipleChoiceFilter(choices=StatusChoices, null_value=None)
-    # internal_partie = django_filters.MultipleChoiceFilter(
-    #     choices=InternalEntityChoices, null_value=None
-    # )
-    # currency = django_filters.MultipleChoiceFilter(
-    #     choices=CurrencyChoices, null_value=None
-    # )
 
     class Meta:
         model = Contract
@@ -44,9 +37,6 @@ class ContractFilterSet(NetBoxModelFilterSet):
 
 
 class InvoiceFilterSet(NetBoxModelFilterSet):
-    # currency = django_filters.MultipleChoiceFilter(
-    #     choices=CurrencyChoices, null_value=None
-    # )
 
     class Meta:
         model = Invoice
@@ -65,15 +55,6 @@ class InvoiceFilterSet(NetBoxModelFilterSet):
         return queryset.filter(Q(number__icontains=value) | Q(contracts__name__icontains=value))
 
 
-class ServiceProviderFilterSet(NetBoxModelFilterSet):
-    class Meta:
-        model = ServiceProvider
-        fields = ('id', 'name')
-
-    def search(self, queryset, name, value):
-        return queryset.filter(name__icontains=value)
-
-
 class ContractAssignmentFilterSet(NetBoxModelFilterSet):
     class Meta:
         model = ContractAssignment
@@ -84,9 +65,6 @@ class ContractAssignmentFilterSet(NetBoxModelFilterSet):
 
 
 class InvoiceLineFilterSet(NetBoxModelFilterSet):
-    # currency = django_filters.MultipleChoiceFilter(
-    #     choices=CurrencyChoices, null_value=None
-    # )
 
     class Meta:
         model = InvoiceLine

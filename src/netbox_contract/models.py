@@ -8,7 +8,6 @@ from django.templatetags.static import static
 from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
 from netbox.models import NetBoxModel
-from netbox.models.features import ContactsMixin
 from utilities.choices import ChoiceSet
 
 
@@ -71,24 +70,6 @@ class AccountingDimension(NetBoxModel):
         verbose_name_plural = _('accounting dimensions')
 
 
-class ServiceProvider(ContactsMixin, NetBoxModel):
-    name = models.CharField(max_length=100, verbose_name=_('name'))
-    slug = models.SlugField(max_length=100, unique=True, verbose_name=_('slug'))
-    portal_url = models.URLField(blank=True, verbose_name=_('portal URL'))
-    comments = models.TextField(blank=True, verbose_name=_('comments'))
-
-    class Meta:
-        ordering = ('name',)
-        verbose_name = _('service provider')
-        verbose_name_plural = _('service providers')
-
-    def __str__(self):
-        return self.name
-
-    def get_absolute_url(self):
-        return reverse('plugins:netbox_contract:serviceprovider', args=[self.pk])
-
-
 class ContractAssignment(NetBoxModel):
     content_type = models.ForeignKey(to=ContentType, on_delete=models.CASCADE, verbose_name=_('content type'))
     object_id = models.PositiveBigIntegerField(verbose_name=_('object ID'))
@@ -122,20 +103,13 @@ class Contract(NetBoxModel):
         null=True,
         verbose_name=_('Accounting Code'),
     )
-    external_partie_object_type = models.ForeignKey(
-        to=ContentType,
-        on_delete=models.CASCADE,
+    provider = models.ForeignKey(
+        to='circuits.provider',
+        on_delete=models.DO_NOTHING,
         blank=True,
         null=True,
         verbose_name=_('external partie object type'),
     )
-    external_partie_object_id = models.PositiveBigIntegerField(
-        blank=True, null=True, verbose_name=_('external partie object ID')
-    )
-    external_partie_object = GenericForeignKey(
-        ct_field='external_partie_object_type', fk_field='external_partie_object_id'
-    )
-    external_partie_object.editable = True
     external_reference = models.CharField(max_length=100, blank=True, null=True, verbose_name=_('external reference'))
     status = models.CharField(
         max_length=50,
@@ -219,7 +193,7 @@ class Contract(NetBoxModel):
     class Meta:
         ordering = ('name',)
         indexes = [
-            models.Index(fields=['external_partie_object_type', 'external_partie_object_id']),
+            models.Index(fields=['provider']),
         ]
         verbose_name = _('contract')
         verbose_name_plural = _('contracts')

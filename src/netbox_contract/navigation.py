@@ -77,12 +77,7 @@ accounting_dimensions_menu_item = PluginMenuItem(
     permissions=['netbox_contract.view_invoice'],
 )
 
-service_provider_menu_item = PluginMenuItem(
-    link='plugins:netbox_contract:serviceprovider_list',
-    link_text=_('Service providers'),
-    buttons=serviceprovider_buttons,
-    permissions=['netbox_contract.view_serviceprovider'],
-)
+
 contract_assignemnt_menu_item = PluginMenuItem(
     link='plugins:netbox_contract:contractassignment_list',
     link_text=_('Contracts assignments'),
@@ -94,7 +89,6 @@ items = (
     invoices_menu_item,
     invoicelines_menu_item,
     accounting_dimensions_menu_item,
-    service_provider_menu_item,
     contract_assignemnt_menu_item,
 )
 
