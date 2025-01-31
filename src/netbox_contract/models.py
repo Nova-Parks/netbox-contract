@@ -180,7 +180,7 @@ class Contract(NetBoxModel):
         null=True,
         help_text=_('Use either this field of the yearly recuring cost field'),
     )
-    nrc = models.DecimalField(verbose_name=_('non-recuring cost'), default=0, max_digits=10, decimal_places=2)
+    nrc = models.DecimalField(verbose_name=_('non-recurring cost'), default=0, max_digits=10, decimal_places=2)
     invoice_frequency = models.IntegerField(
         help_text=_('The frequency of invoices in month'),
         default=1,
