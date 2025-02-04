@@ -9,7 +9,6 @@ from django.db.models.functions import Round
 from django.shortcuts import get_object_or_404, render
 from netbox.views import generic
 from netbox.views.generic.utils import get_prerequisite_model
-from tenancy.views import ObjectContactsView
 from utilities.forms import restrict_form_fields
 from utilities.querydict import normalize_querydict
 from utilities.views import register_model_view
@@ -21,56 +20,9 @@ from .models import (
     ContractAssignment,
     Invoice,
     InvoiceLine,
-    ServiceProvider,
 )
 
 plugin_settings = settings.PLUGINS_CONFIG['netbox_contract']
-
-# ServiceProvider views
-
-
-@register_model_view(ServiceProvider, 'contacts')
-class ServiceProviderContactsView(ObjectContactsView):
-    queryset = ServiceProvider.objects.all()
-
-
-class ServiceProviderView(generic.ObjectView):
-    queryset = ServiceProvider.objects.all()
-
-
-class ServiceProviderListView(generic.ObjectListView):
-    queryset = ServiceProvider.objects.all()
-    table = tables.ServiceProviderListTable
-    filterset = filtersets.ServiceProviderFilterSet
-    filterset_form = forms.ServiceProviderFilterForm
-
-
-class ServiceProviderEditView(generic.ObjectEditView):
-    queryset = ServiceProvider.objects.all()
-    form = forms.ServiceProviderForm
-
-
-class ServiceProviderDeleteView(generic.ObjectDeleteView):
-    queryset = ServiceProvider.objects.all()
-
-
-class ServiceProviderBulkImportView(generic.BulkImportView):
-    queryset = ServiceProvider.objects.all()
-    model_form = forms.ServiceProviderCSVForm
-    table = tables.ServiceProviderListTable
-
-
-class ServiceProviderBulkEditView(generic.BulkEditView):
-    queryset = ServiceProvider.objects.annotate()
-    filterset = filtersets.ServiceProviderFilterSet
-    table = tables.ServiceProviderListTable
-    form = forms.ServiceProviderBulkEditForm
-
-
-class ServiceProviderBulkDeleteView(generic.BulkDeleteView):
-    queryset = ServiceProvider.objects.annotate()
-    filterset = filtersets.ServiceProviderFilterSet
-    table = tables.ServiceProviderListTable
 
 
 # Contract assignment view
@@ -100,12 +52,8 @@ class ContractAssignmentEditView(generic.ObjectEditView):
     def alter_object(self, instance, request, args, kwargs):
         if not instance.pk and kwargs:
             # Assign the object based on URL kwargs
-            content_type = get_object_or_404(
-                ContentType, pk=request.GET.get('content_type')
-            )
-            instance.object = get_object_or_404(
-                content_type.model_class(), pk=request.GET.get('object_id')
-            )
+            content_type = get_object_or_404(ContentType, pk=request.GET.get('content_type'))
+            instance.object = get_object_or_404(content_type.model_class(), pk=request.GET.get('object_id'))
         return instance
 
     def get_extra_addanother_params(self, request):
@@ -138,19 +86,13 @@ class ContractView(generic.ObjectView):
     )
 
     def get_extra_context(self, request, instance):
-        invoices_table = tables.InvoiceListTable(
-            instance.invoices.exclude(template=True)
-        )
+        invoices_table = tables.InvoiceListTable(instance.invoices.exclude(template=True))
         invoices_table.columns.hide('contracts')
         invoices_table.configure(request)
-        assignments_table = tables.ContractAssignmentContractTable(
-            instance.assignments.all()
-        )
+        assignments_table = tables.ContractAssignmentContractTable(instance.assignments.all())
         invoice_template = instance.invoices.filter(template=True).first()
         if invoice_template:
-            invoicelines_table = tables.InvoiceLineListTable(
-                invoice_template.invoicelines.all()
-            )
+            invoicelines_table = tables.InvoiceLineListTable(invoice_template.invoicelines.all())
             invoicelines_table.columns.hide('invoice')
             invoicelines_table.columns.hide('currency')
             invoicelines_table.configure(request)
@@ -190,35 +132,6 @@ class ContractListView(generic.ObjectListView):
 class ContractEditView(generic.ObjectEditView):
     queryset = Contract.objects.all()
     form = forms.ContractForm
-
-    def alter_object(self, obj, request, url_args, url_kwargs):
-        """
-        When this method is called after a Post,
-        it is used here to set the external partie object id for exiting objects,
-        In any case, this happens before the form is instanciated.
-
-        Args:
-            obj: The object being edited
-            request: The current request
-            url_args: URL path args
-            url_kwargs: URL path kwargs
-        """
-
-        if request.method == 'POST':
-            data = normalize_querydict(request.POST)
-            obj.external_partie_object_id = data['external_partie_object']
-            external_partie_object_type_id = data['external_partie_object_type']
-            obj.external_partie_object_type = ContentType.objects.get(
-                id=external_partie_object_type_id
-            )
-            external_partie_object_type = obj.external_partie_object_type
-            obj.external_partie_object = (
-                external_partie_object_type.get_object_for_this_type(
-                    id=obj.external_partie_object_id
-                )
-            )
-
-        return obj
 
 
 class ContractDeleteView(generic.ObjectDeleteView):
@@ -296,9 +209,7 @@ class InvoiceEditView(generic.ObjectEditView):
             contract = Contract.objects.get(pk=initial_data['contracts'])
 
             try:
-                last_invoice = contract.invoices.exclude(template=True).latest(
-                    'period_end'
-                )
+                last_invoice = contract.invoices.exclude(template=True).latest('period_end')
                 new_period_start = last_invoice.period_end + timedelta(days=1)
             except ObjectDoesNotExist:
                 if contract.start_date:
@@ -316,13 +227,9 @@ class InvoiceEditView(generic.ObjectEditView):
                 if contract.invoice_frequency == 12:
                     initial_data['amount'] = contract.yrc
                 else:
-                    initial_data['amount'] = round(
-                        contract.yrc / 12 * contract.invoice_frequency, 2
-                    )
+                    initial_data['amount'] = round(contract.yrc / 12 * contract.invoice_frequency, 2)
             else:
                 initial_data['amount'] = contract.mrc * contract.invoice_frequency
-
-            initial_data['currency'] = contract.currency
 
         form = self.form(instance=obj, initial=initial_data)
         restrict_form_fields(form, request.user)

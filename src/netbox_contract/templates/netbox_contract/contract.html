@@ -17,13 +17,19 @@
               <td>{{ object.name }}</td>
             </tr>
             <tr>
-              <th scope="row">{% trans "External partie type" %}</th>
-              <td>{{ object.external_partie_object_type }}</td>
+              <th scope="row">{% trans "Accounting Code" %}</th>
+              <td>
+                <a href="{{ object.accounting_code.get_absolute_url }}">
+                  {{ object.accounting_code }}
+                </a>
+              </td>
             </tr>
             <tr>
-              <th scope="row">{% trans "External partie" %}</th>
+              <th scope="row">{% trans "Provider" %}</th>
               <td>
-                <a href="{{ object.external_partie_object.get_absolute_url }}">{{ object.external_partie_object.name }}</a>
+                <a href="{{ object.provider.get_absolute_url }}">
+                  {{ object.provider }}
+                </a>
               </td>
             </tr>
             <tr>
@@ -34,16 +40,6 @@
               <th scope="row">{% trans "External reference" %}</th>
               <td>{{ object.external_reference }}</td>
             </tr>
-            <tr>
-              <th scope="row">{% trans "Internal partie" %}</th>
-              <td>{{ object.internal_partie }}</td>
-            </tr>
-            {% if not 'tenant' in hidden_fields %}
-            <tr>
-              <th scope="row">{% trans "Tenant" %}</th>
-              <td>{{ object.tenant }}</td>
-            </tr>
-            {% endif %}
             {% if not 'start_date' in hidden_fields %}
             <tr>
               <th scope="row">{% trans "Start date" %}</th>
@@ -75,10 +71,6 @@
             </tr>
             {% endif %}
             <tr>
-              <th scope="row">{% trans "Currency" %}</th>
-              <td>{{ object.get_currency_display  }}</td>
-            </tr>
-            <tr>
               <th scope="row">{% trans "Monthly recuring costs" %}</th>
               <td>{{ object.mrc }}</td>
             </tr>
@@ -91,12 +83,16 @@
               <td>{{ object.calculated_rc }}</td>
             </tr>
             <tr>
-              <th scope="row">{% trans "Non recuring costs" %}</th>
+              <th scope="row">{% trans "Non-recurring costs" %}</th>
               <td>{{ object.nrc }}</td>
             </tr>
             <tr>
               <th scope="row">{% trans "Invoice frequency" %}</th>
               <td>{{ object.invoice_frequency }}</td>
+            </tr>
+            <tr>
+              <th scope="row">{% trans "Terms & Conditions" %}</th>
+              <td>{{ object.term_con|markdown }}</td>
             </tr>
             {% if not 'parent' in hidden_fields %}
             <tr>

@@ -13,9 +13,7 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name='contract',
             name='custom_field_data',
-            field=models.JSONField(
-                blank=True, default=dict, encoder=utilities.json.CustomFieldJSONEncoder
-            ),
+            field=models.JSONField(blank=True, default=dict, encoder=utilities.json.CustomFieldJSONEncoder),
         ),
         migrations.AlterField(
             model_name='contract',
@@ -35,15 +33,11 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name='invoice',
             name='custom_field_data',
-            field=models.JSONField(
-                blank=True, default=dict, encoder=utilities.json.CustomFieldJSONEncoder
-            ),
+            field=models.JSONField(blank=True, default=dict, encoder=utilities.json.CustomFieldJSONEncoder),
         ),
         migrations.AlterField(
             model_name='serviceprovider',
             name='custom_field_data',
-            field=models.JSONField(
-                blank=True, default=dict, encoder=utilities.json.CustomFieldJSONEncoder
-            ),
+            field=models.JSONField(blank=True, default=dict, encoder=utilities.json.CustomFieldJSONEncoder),
         ),
     ]

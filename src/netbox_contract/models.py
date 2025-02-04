@@ -4,10 +4,10 @@ from django.contrib.contenttypes.fields import GenericForeignKey
 from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import ValidationError
 from django.db import models
+from django.templatetags.static import static
 from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
 from netbox.models import NetBoxModel
-from netbox.models.features import ContactsMixin
 from utilities.choices import ChoiceSet
 
 
@@ -35,37 +35,13 @@ class AccountingDimensionStatusChoices(ChoiceSet):
     ]
 
 
-class InternalEntityChoices(ChoiceSet):
-    key = 'Contract.internal_partie'
-
-    ENTITY = 'Default entity'
-
-    CHOICES = [
-        (ENTITY, 'Default entity', 'green'),
-    ]
-
-
-class CurrencyChoices(ChoiceSet):
-    key = 'Contract.currency'
-    CURRENCY_USD = 'usd'
-
-    CHOICES = [
-        (CURRENCY_USD, 'USD'),
-        ('eur', 'EUR'),
-        ('chf', 'CHF'),
-    ]
-
-
-CURRENCY_DEFAULT = CurrencyChoices.CHOICES[0][0]
-
-
 class AccountingDimension(NetBoxModel):
     name = models.CharField(
         max_length=20,
-        verbose_name=_('dimension name'),
-        help_text=_('Accounting dimension name. Ex: Department, Location, etc.'),
+        verbose_name=_('name'),
     )
-    value = models.CharField(max_length=20, verbose_name=_('value'))
+    value = models.CharField(max_length=20, verbose_name=_('code'))
+    site = models.OneToOneField(to='dcim.Site', verbose_name=_('site'), null=True, on_delete=models.PROTECT)
     status = models.CharField(
         max_length=50,
         choices=AccountingDimensionStatusChoices,
@@ -94,24 +70,6 @@ class AccountingDimension(NetBoxModel):
         verbose_name_plural = _('accounting dimensions')
 
 
-class ServiceProvider(ContactsMixin, NetBoxModel):
-    name = models.CharField(max_length=100, verbose_name=_('name'))
-    slug = models.SlugField(max_length=100, unique=True, verbose_name=_('slug'))
-    portal_url = models.URLField(blank=True, verbose_name=_('portal URL'))
-    comments = models.TextField(blank=True, verbose_name=_('comments'))
-
-    class Meta:
-        ordering = ('name',)
-        verbose_name = _('service provider')
-        verbose_name_plural = _('service providers')
-
-    def __str__(self):
-        return self.name
-
-    def get_absolute_url(self):
-        return reverse('plugins:netbox_contract:serviceprovider', args=[self.pk])
-
-
 class ContractAssignment(NetBoxModel):
     content_type = models.ForeignKey(to=ContentType, on_delete=models.CASCADE, verbose_name=_('content type'))
     object_id = models.PositiveBigIntegerField(verbose_name=_('object ID'))
@@ -138,30 +96,21 @@ class ContractAssignment(NetBoxModel):
 
 class Contract(NetBoxModel):
     name = models.CharField(max_length=100, verbose_name=_('name'))
-    external_partie_object_type = models.ForeignKey(
-        to=ContentType,
-        on_delete=models.CASCADE,
+    accounting_code = models.ForeignKey(
+        to=AccountingDimension,
+        on_delete=models.PROTECT,
+        blank=True,
+        null=True,
+        verbose_name=_('Accounting Code'),
+    )
+    provider = models.ForeignKey(
+        to='circuits.provider',
+        on_delete=models.DO_NOTHING,
         blank=True,
         null=True,
         verbose_name=_('external partie object type'),
     )
-    external_partie_object_id = models.PositiveBigIntegerField(
-        blank=True, null=True, verbose_name=_('external partie object ID')
-    )
-    external_partie_object = GenericForeignKey(
-        ct_field='external_partie_object_type', fk_field='external_partie_object_id'
-    )
-    external_partie_object.editable = True
     external_reference = models.CharField(max_length=100, blank=True, null=True, verbose_name=_('external reference'))
-    internal_partie = models.CharField(max_length=50, choices=InternalEntityChoices, verbose_name=_('internal partie'))
-    tenant = models.ForeignKey(
-        to='tenancy.Tenant',
-        on_delete=models.PROTECT,
-        related_name='contracts',
-        blank=True,
-        null=True,
-        verbose_name=_('tenant'),
-    )
     status = models.CharField(
         max_length=50,
         choices=StatusChoices,
@@ -189,12 +138,6 @@ class Contract(NetBoxModel):
         default=90,
         verbose_name=_('notice period'),
     )
-    currency = models.CharField(
-        max_length=3,
-        choices=CurrencyChoices,
-        default=CURRENCY_DEFAULT,
-        verbose_name=_('currency'),
-    )
     yrc = models.DecimalField(
         verbose_name=_('yearly recuring cost'),
         max_digits=10,
@@ -211,11 +154,20 @@ class Contract(NetBoxModel):
         null=True,
         help_text=_('Use either this field of the yearly recuring cost field'),
     )
-    nrc = models.DecimalField(verbose_name=_('none recuring cost'), default=0, max_digits=10, decimal_places=2)
+    nrc = models.DecimalField(verbose_name=_('non-recurring cost'), default=0, max_digits=10, decimal_places=2)
     invoice_frequency = models.IntegerField(
         help_text=_('The frequency of invoices in month'),
         default=1,
         verbose_name=_('invoice frequency'),
+    )
+    term_con = models.TextField(
+        blank=True,
+        null=True,
+        verbose_name=_('terms and Conditions'),
+        help_text=_(
+            '<i class="mdi mdi-information-outline"></i> '
+            '<a href="{url}" target="_blank" tabindex="-1">Markdown</a> syntax is supported'
+        ).format(url=static('docs/reference/markdown/')),
     )
     documents = models.URLField(
         blank=True,
@@ -241,7 +193,7 @@ class Contract(NetBoxModel):
     class Meta:
         ordering = ('name',)
         indexes = [
-            models.Index(fields=['external_partie_object_type', 'external_partie_object_id']),
+            models.Index(fields=['provider']),
         ]
         verbose_name = _('contract')
         verbose_name_plural = _('contracts')
@@ -267,12 +219,6 @@ class Invoice(NetBoxModel):
     contracts = models.ManyToManyField(Contract, related_name='invoices', blank=True, verbose_name=_('contracts'))
     period_start = models.DateField(blank=True, null=True, verbose_name=_('period start'))
     period_end = models.DateField(blank=True, null=True, verbose_name=_('period end'))
-    currency = models.CharField(
-        max_length=3,
-        choices=CurrencyChoices,
-        default=CURRENCY_DEFAULT,
-        verbose_name=_('currency'),
-    )
     amount = models.DecimalField(max_digits=10, decimal_places=2, verbose_name=_('amount'))
     documents = models.URLField(
         blank=True,
@@ -306,12 +252,6 @@ class InvoiceLine(NetBoxModel):
         on_delete=models.CASCADE,
         related_name='invoicelines',
         verbose_name=_('invoice'),
-    )
-    currency = models.CharField(
-        max_length=3,
-        choices=CurrencyChoices,
-        default=CURRENCY_DEFAULT,
-        verbose_name=_('currency'),
     )
     amount = models.DecimalField(max_digits=10, decimal_places=2, verbose_name=_('amount'))
     accounting_dimensions = models.ManyToManyField(

@@ -14,9 +14,7 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name='contract',
             name='circuit',
-            field=models.ManyToManyField(
-                related_name='contracts', to='circuits.circuit'
-            ),
+            field=models.ManyToManyField(related_name='contracts', to='circuits.circuit'),
         ),
         migrations.AlterField(
             model_name='contract',

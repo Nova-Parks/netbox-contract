@@ -12,8 +12,6 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name='invoiceline',
             name='accounting_dimensions',
-            field=models.ManyToManyField(
-                blank=True, to='netbox_contract.accountingdimension'
-            ),
+            field=models.ManyToManyField(blank=True, to='netbox_contract.accountingdimension'),
         ),
     ]

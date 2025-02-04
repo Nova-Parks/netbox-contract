@@ -9,7 +9,6 @@ from .serializers import (
     ContractSerializer,
     InvoiceLineSerializer,
     InvoiceSerializer,
-    ServiceProviderSerializer,
 )
 
 
@@ -30,20 +29,13 @@ class InvoiceViewSet(NetBoxModelViewSet):
     filterset_class = filtersets.InvoiceFilterSet
 
 
-class ServiceProviderViewSet(NetBoxModelViewSet):
-    queryset = models.ServiceProvider.objects.prefetch_related('tags')
-    serializer_class = ServiceProviderSerializer
-
-
 class ContractAssignmentViewSet(NetBoxModelViewSet):
     queryset = models.ContractAssignment.objects.prefetch_related('contract', 'tags')
     serializer_class = ContractAssignmentSerializer
 
 
 class InvoiceLineViewSet(NetBoxModelViewSet):
-    queryset = models.InvoiceLine.objects.prefetch_related(
-        'invoice', 'accounting_dimensions', 'tags'
-    )
+    queryset = models.InvoiceLine.objects.prefetch_related('invoice', 'accounting_dimensions', 'tags')
     serializer_class = InvoiceLineSerializer
     filterset_class = filtersets.InvoiceLineFilterSet
 
