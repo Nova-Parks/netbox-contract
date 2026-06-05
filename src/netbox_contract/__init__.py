@@ -9,7 +9,7 @@ class ContractsConfig(PluginConfig):
     author = 'Marc Lebreuil'
     author_email = 'marc@famillelebreuil.net'
     base_url = 'contracts'
-    min_version = '4.5.0'
+    min_version = '4.2.0'
     required_settings = []
     default_settings = {
         'top_level_menu': True,
